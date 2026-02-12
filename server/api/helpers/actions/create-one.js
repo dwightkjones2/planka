@@ -12,6 +12,14 @@ const buildTitle = (action, t) => {
       return t('Card Created');
     case Action.Types.MOVE_CARD:
       return t('Card Moved');
+    case Action.Types.ADD_MEMBER_TO_CARD:
+      return t('Member Added to Card');
+    case Action.Types.REMOVE_MEMBER_FROM_CARD:
+      return t('Member Removed from Card');
+    case Action.Types.COMPLETE_TASK:
+      return t('Task Completed');
+    case Action.Types.UNCOMPLETE_TASK:
+      return t('Task Marked Incomplete');
     default:
       return null;
   }
@@ -74,6 +82,78 @@ const buildBodyByFormat = (board, card, action, actorUser, t) => {
         ),
       };
     }
+    case Action.Types.ADD_MEMBER_TO_CARD:
+      return {
+        text: t('%s added %s to %s on %s', actorUser.name, action.data.user.name, card.name, board.name),
+        markdown: t(
+          '%s added %s to %s on %s',
+          escapeMarkdown(actorUser.name),
+          `**${escapeMarkdown(action.data.user.name)}**`,
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s added %s to %s on %s',
+          escapeHtml(actorUser.name),
+          `<b>${escapeHtml(action.data.user.name)}</b>`,
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
+    case Action.Types.REMOVE_MEMBER_FROM_CARD:
+      return {
+        text: t('%s removed %s from %s on %s', actorUser.name, action.data.user.name, card.name, board.name),
+        markdown: t(
+          '%s removed %s from %s on %s',
+          escapeMarkdown(actorUser.name),
+          `**${escapeMarkdown(action.data.user.name)}**`,
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s removed %s from %s on %s',
+          escapeHtml(actorUser.name),
+          `<b>${escapeHtml(action.data.user.name)}</b>`,
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
+    case Action.Types.COMPLETE_TASK:
+      return {
+        text: t('%s completed %s on %s on %s', actorUser.name, action.data.task.name, card.name, board.name),
+        markdown: t(
+          '%s completed **%s** on %s on %s',
+          escapeMarkdown(actorUser.name),
+          escapeMarkdown(action.data.task.name),
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s completed <b>%s</b> on %s on %s',
+          escapeHtml(actorUser.name),
+          escapeHtml(action.data.task.name),
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
+    case Action.Types.UNCOMPLETE_TASK:
+      return {
+        text: t('%s marked %s incomplete on %s on %s', actorUser.name, action.data.task.name, card.name, board.name),
+        markdown: t(
+          '%s marked **%s** incomplete on %s on %s',
+          escapeMarkdown(actorUser.name),
+          escapeMarkdown(action.data.task.name),
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s marked <b>%s</b> incomplete on %s on %s',
+          escapeHtml(actorUser.name),
+          escapeHtml(action.data.task.name),
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
     default:
       return null;
   }

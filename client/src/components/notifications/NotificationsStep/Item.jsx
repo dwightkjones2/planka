@@ -144,6 +144,123 @@ const Item = React.memo(({ id, onClose }) => {
 
       break;
     }
+    case NotificationTypes.CREATE_CARD: {
+      const listName = notification.data.list
+        ? notification.data.list.name || t(`common.${notification.data.list.type}`)
+        : '';
+
+      contentNode = (
+        <Trans
+          i18nKey="common.userCreatedCardInList"
+          values={{
+            user: creatorUserName,
+            card: cardName,
+            list: listName,
+          }}
+        >
+          <span className={styles.author}>{creatorUserName}</span>
+          {' created '}
+          <Link to={Paths.CARDS.replace(':id', notification.cardId)} onClick={onClose}>
+            {cardName}
+          </Link>
+          {` in ${listName}`}
+        </Trans>
+      );
+
+      break;
+    }
+    case NotificationTypes.REMOVE_MEMBER_FROM_CARD:
+      contentNode = (
+        <Trans
+          i18nKey="common.userRemovedYouFromCard"
+          values={{
+            user: creatorUserName,
+            card: cardName,
+          }}
+        >
+          <span className={styles.author}>{creatorUserName}</span>
+          {' removed you from '}
+          <Link to={Paths.CARDS.replace(':id', notification.cardId)} onClick={onClose}>
+            {cardName}
+          </Link>
+        </Trans>
+      );
+
+      break;
+    case NotificationTypes.COMPLETE_TASK:
+      contentNode = (
+        <Trans
+          i18nKey="common.userCompletedTaskOnCard"
+          values={{
+            user: creatorUserName,
+            task: notification.data.task ? notification.data.task.name : '',
+            card: cardName,
+          }}
+        >
+          <span className={styles.author}>{creatorUserName}</span>
+          {` completed ${notification.data.task ? notification.data.task.name : ''} on `}
+          <Link to={Paths.CARDS.replace(':id', notification.cardId)} onClick={onClose}>
+            {cardName}
+          </Link>
+        </Trans>
+      );
+
+      break;
+    case NotificationTypes.UNCOMPLETE_TASK:
+      contentNode = (
+        <Trans
+          i18nKey="common.userMarkedTaskIncompleteOnCardNotification"
+          values={{
+            user: creatorUserName,
+            task: notification.data.task ? notification.data.task.name : '',
+            card: cardName,
+          }}
+        >
+          <span className={styles.author}>{creatorUserName}</span>
+          {` marked ${notification.data.task ? notification.data.task.name : ''} incomplete on `}
+          <Link to={Paths.CARDS.replace(':id', notification.cardId)} onClick={onClose}>
+            {cardName}
+          </Link>
+        </Trans>
+      );
+
+      break;
+    case NotificationTypes.DUE_DATE_CHANGED:
+      contentNode = (
+        <Trans
+          i18nKey="common.userChangedDueDateOnCard"
+          values={{
+            user: creatorUserName,
+            card: cardName,
+          }}
+        >
+          <span className={styles.author}>{creatorUserName}</span>
+          {' changed the due date on '}
+          <Link to={Paths.CARDS.replace(':id', notification.cardId)} onClick={onClose}>
+            {cardName}
+          </Link>
+        </Trans>
+      );
+
+      break;
+    case NotificationTypes.ATTACHMENT_ADDED:
+      contentNode = (
+        <Trans
+          i18nKey="common.userAddedAttachmentToCard"
+          values={{
+            user: creatorUserName,
+            card: cardName,
+          }}
+        >
+          <span className={styles.author}>{creatorUserName}</span>
+          {' added an attachment to '}
+          <Link to={Paths.CARDS.replace(':id', notification.cardId)} onClick={onClose}>
+            {cardName}
+          </Link>
+        </Trans>
+      );
+
+      break;
     default:
       contentNode = null;
   }

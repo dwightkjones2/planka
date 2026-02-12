@@ -65,6 +65,37 @@ module.exports = {
       user: values.creatorUser,
     });
 
+    const cardSubscriptionUserIds = await sails.helpers.cards.getSubscriptionUserIds(
+      values.card.id,
+      values.creatorUser.id,
+    );
+
+    const boardSubscriptionUserIds = await sails.helpers.boards.getSubscriptionUserIds(
+      inputs.board.id,
+      values.creatorUser.id,
+    );
+
+    const notifiableUserIds = _.union(cardSubscriptionUserIds, boardSubscriptionUserIds);
+
+    if (notifiableUserIds.length > 0) {
+      await sails.helpers.notifications.createMany.with({
+        webhooks,
+        arrayOfValues: notifiableUserIds.map((userId) => ({
+          userId,
+          type: Notification.Types.ATTACHMENT_ADDED,
+          data: {
+            card: _.pick(values.card, ['name']),
+            attachment: _.pick(attachment, ['id', 'name']),
+          },
+          creatorUser: values.creatorUser,
+          card: values.card,
+        })),
+        project: inputs.project,
+        board: inputs.board,
+        list: inputs.list,
+      });
+    }
+
     if (!values.card.coverAttachmentId) {
       if (attachment.type === Attachment.Types.FILE && attachment.data.image) {
         await sails.helpers.cards.updateOne.with({

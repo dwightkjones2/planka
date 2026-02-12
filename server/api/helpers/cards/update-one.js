@@ -331,6 +331,40 @@ module.exports = {
             list: values.list,
           });
         }
+
+        if (!_.isUndefined(values.dueDate) && values.dueDate !== inputs.record.dueDate) {
+          const cardSubscriptionUserIds = await sails.helpers.cards.getSubscriptionUserIds(
+            card.id,
+            inputs.actorUser.id,
+          );
+
+          const boardSubscriptionUserIds = await sails.helpers.boards.getSubscriptionUserIds(
+            inputs.board.id,
+            inputs.actorUser.id,
+          );
+
+          const notifiableUserIds = _.union(cardSubscriptionUserIds, boardSubscriptionUserIds);
+
+          if (notifiableUserIds.length > 0) {
+            await sails.helpers.notifications.createMany.with({
+              webhooks,
+              arrayOfValues: notifiableUserIds.map((userId) => ({
+                userId,
+                type: Notification.Types.DUE_DATE_CHANGED,
+                data: {
+                  card: _.pick(card, ['name']),
+                  dueDate: values.dueDate,
+                  prevDueDate: inputs.record.dueDate,
+                },
+                creatorUser: inputs.actorUser,
+                card,
+              })),
+              project: inputs.project,
+              board: inputs.board,
+              list,
+            });
+          }
+        }
       }
 
       if (tasks) {

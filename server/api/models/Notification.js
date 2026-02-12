@@ -90,10 +90,16 @@
  */
 
 const Types = {
+  CREATE_CARD: 'createCard',
   MOVE_CARD: 'moveCard',
   COMMENT_CARD: 'commentCard',
   ADD_MEMBER_TO_CARD: 'addMemberToCard',
+  REMOVE_MEMBER_FROM_CARD: 'removeMemberFromCard',
   MENTION_IN_COMMENT: 'mentionInComment',
+  COMPLETE_TASK: 'completeTask',
+  UNCOMPLETE_TASK: 'uncompleteTask',
+  DUE_DATE_CHANGED: 'dueDateChanged',
+  ATTACHMENT_ADDED: 'attachmentAdded',
 };
 
 module.exports = {

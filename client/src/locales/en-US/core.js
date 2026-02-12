@@ -356,6 +356,18 @@ export default {
         '<0>{{user}}</0> moved this card from {{fromList}} to {{toList}}',
       userRemovedUserFromCard: '<0>{{actorUser}}</0> removed {{removedUser}} from <4>{{card}}</4>',
       userRemovedUserFromThisCard: '<0>{{actorUser}}</0> removed {{removedUser}} from this card',
+      userCreatedCardInList:
+        '<0>{{user}}</0> created <2>{{card}}</2> in {{list}}',
+      userRemovedYouFromCard:
+        '<0>{{user}}</0> removed you from <2>{{card}}</2>',
+      userCompletedTaskOnCard:
+        '<0>{{user}}</0> completed {{task}} on <2>{{card}}</2>',
+      userMarkedTaskIncompleteOnCardNotification:
+        '<0>{{user}}</0> marked {{task}} incomplete on <2>{{card}}</2>',
+      userChangedDueDateOnCard:
+        '<0>{{user}}</0> changed the due date on <2>{{card}}</2>',
+      userAddedAttachmentToCard:
+        '<0>{{user}}</0> added an attachment to <2>{{card}}</2>',
       username: 'Username',
       users: 'Users',
       viewer: 'Viewer',

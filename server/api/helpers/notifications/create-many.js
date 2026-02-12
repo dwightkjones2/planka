@@ -10,14 +10,26 @@ const { mentionMarkupToText } = require('../../../utils/mentions');
 
 const buildTitle = (notification, t) => {
   switch (notification.type) {
+    case Notification.Types.CREATE_CARD:
+      return t('Card Created');
     case Notification.Types.MOVE_CARD:
       return t('Card Moved');
     case Notification.Types.COMMENT_CARD:
       return t('New Comment');
     case Notification.Types.ADD_MEMBER_TO_CARD:
       return t('You Were Added to Card');
+    case Notification.Types.REMOVE_MEMBER_FROM_CARD:
+      return t('You Were Removed from Card');
     case Notification.Types.MENTION_IN_COMMENT:
       return t('You Were Mentioned in Comment');
+    case Notification.Types.COMPLETE_TASK:
+      return t('Task Completed');
+    case Notification.Types.UNCOMPLETE_TASK:
+      return t('Task Marked Incomplete');
+    case Notification.Types.DUE_DATE_CHANGED:
+      return t('Due Date Changed');
+    case Notification.Types.ATTACHMENT_ADDED:
+      return t('Attachment Added');
     default:
       return null;
   }
@@ -28,6 +40,29 @@ const buildBodyByFormat = (board, card, notification, actorUser, t) => {
   const htmlCardLink = `<a href="${sails.config.custom.baseUrl}/cards/${card.id}">${escapeHtml(card.name)}</a>`;
 
   switch (notification.type) {
+    case Notification.Types.CREATE_CARD: {
+      const listName = notification.data.list
+        ? sails.helpers.lists.resolveName(notification.data.list, t)
+        : '';
+
+      return {
+        text: t('%s created %s in %s on %s', actorUser.name, card.name, listName, board.name),
+        markdown: t(
+          '%s created %s in %s on %s',
+          escapeMarkdown(actorUser.name),
+          markdownCardLink,
+          `**${escapeMarkdown(listName)}**`,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s created %s in %s on %s',
+          escapeHtml(actorUser.name),
+          htmlCardLink,
+          `<b>${escapeHtml(listName)}</b>`,
+          escapeHtml(board.name),
+        ),
+      };
+    }
     case Notification.Types.MOVE_CARD: {
       const fromListName = sails.helpers.lists.resolveName(notification.data.fromList, t);
       const toListName = sails.helpers.lists.resolveName(notification.data.toList, t);
@@ -123,6 +158,90 @@ const buildBodyByFormat = (board, card, notification, actorUser, t) => {
         )}:\n\n<i>${escapeHtml(commentText)}</i>`,
       };
     }
+    case Notification.Types.REMOVE_MEMBER_FROM_CARD:
+      return {
+        text: t('%s removed you from %s on %s', actorUser.name, card.name, board.name),
+        markdown: t(
+          '%s removed you from %s on %s',
+          escapeMarkdown(actorUser.name),
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s removed you from %s on %s',
+          escapeHtml(actorUser.name),
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
+    case Notification.Types.COMPLETE_TASK:
+      return {
+        text: t('%s completed %s on %s on %s', actorUser.name, notification.data.task.name, card.name, board.name),
+        markdown: t(
+          '%s completed **%s** on %s on %s',
+          escapeMarkdown(actorUser.name),
+          escapeMarkdown(notification.data.task.name),
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s completed <b>%s</b> on %s on %s',
+          escapeHtml(actorUser.name),
+          escapeHtml(notification.data.task.name),
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
+    case Notification.Types.UNCOMPLETE_TASK:
+      return {
+        text: t('%s marked %s incomplete on %s on %s', actorUser.name, notification.data.task.name, card.name, board.name),
+        markdown: t(
+          '%s marked **%s** incomplete on %s on %s',
+          escapeMarkdown(actorUser.name),
+          escapeMarkdown(notification.data.task.name),
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s marked <b>%s</b> incomplete on %s on %s',
+          escapeHtml(actorUser.name),
+          escapeHtml(notification.data.task.name),
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
+    case Notification.Types.DUE_DATE_CHANGED:
+      return {
+        text: t('%s changed the due date on %s on %s', actorUser.name, card.name, board.name),
+        markdown: t(
+          '%s changed the due date on %s on %s',
+          escapeMarkdown(actorUser.name),
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s changed the due date on %s on %s',
+          escapeHtml(actorUser.name),
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
+    case Notification.Types.ATTACHMENT_ADDED:
+      return {
+        text: t('%s added an attachment to %s on %s', actorUser.name, card.name, board.name),
+        markdown: t(
+          '%s added an attachment to %s on %s',
+          escapeMarkdown(actorUser.name),
+          markdownCardLink,
+          escapeMarkdown(board.name),
+        ),
+        html: t(
+          '%s added an attachment to %s on %s',
+          escapeHtml(actorUser.name),
+          htmlCardLink,
+          escapeHtml(board.name),
+        ),
+      };
     default:
       return null;
   }
@@ -183,6 +302,68 @@ const buildEmail = (board, card, notification, actorUser, notifiableUser, t) => 
         cardLink,
         boardLink,
       )}</p><p>${escapeHtml(mentionMarkupToText(notification.data.text))}</p>`;
+
+      break;
+    case Notification.Types.CREATE_CARD: {
+      const listName = notification.data.list
+        ? sails.helpers.lists.resolveName(notification.data.list, t)
+        : '';
+
+      html = `<p>${t(
+        '%s created %s in %s on %s',
+        escapeHtml(actorUser.name),
+        cardLink,
+        escapeHtml(listName),
+        boardLink,
+      )}</p>`;
+
+      break;
+    }
+    case Notification.Types.REMOVE_MEMBER_FROM_CARD:
+      html = `<p>${t(
+        '%s removed you from %s on %s',
+        escapeHtml(actorUser.name),
+        cardLink,
+        boardLink,
+      )}</p>`;
+
+      break;
+    case Notification.Types.COMPLETE_TASK:
+      html = `<p>${t(
+        '%s completed <b>%s</b> on %s on %s',
+        escapeHtml(actorUser.name),
+        escapeHtml(notification.data.task.name),
+        cardLink,
+        boardLink,
+      )}</p>`;
+
+      break;
+    case Notification.Types.UNCOMPLETE_TASK:
+      html = `<p>${t(
+        '%s marked <b>%s</b> incomplete on %s on %s',
+        escapeHtml(actorUser.name),
+        escapeHtml(notification.data.task.name),
+        cardLink,
+        boardLink,
+      )}</p>`;
+
+      break;
+    case Notification.Types.DUE_DATE_CHANGED:
+      html = `<p>${t(
+        '%s changed the due date on %s on %s',
+        escapeHtml(actorUser.name),
+        cardLink,
+        boardLink,
+      )}</p>`;
+
+      break;
+    case Notification.Types.ATTACHMENT_ADDED:
+      html = `<p>${t(
+        '%s added an attachment to %s on %s',
+        escapeHtml(actorUser.name),
+        cardLink,
+        boardLink,
+      )}</p>`;
 
       break;
     default:

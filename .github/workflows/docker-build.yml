@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - feature/extended-notifications
+      - feature/extend-notifications
       - main
       - master
   workflow_dispatch:  # allows manual trigger
